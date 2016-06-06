@@ -1,0 +1,13 @@
+sitemap security label="Home Security"
+{
+	Frame {
+		Text label="Passageway" {
+			Switch    item=PassageSensorActivated
+			Text      item=PassageSensorStateString
+			Switch    item=PassageSensorShorted
+			Switch    item=PassageSensorTriggered
+			Switch    item=PassageSensorTampered
+			Text      item=PassageSensorLastTriggered
+		}
+	}
+}

@@ -32,7 +32,7 @@ const byte TAMPERED = 3;
 
 unsigned long sensorReadPreviousMillis   = 0UL;
 
-const unsigned long SENSOR_READ_INTERVAL = 1000UL;           // interval at which to take measurement (milliseconds)
+const unsigned long SENSOR_READ_INTERVAL = 500UL;           // interval at which to take measurement (milliseconds)
 
 boolean soundAlarm                       = false;
 
@@ -59,7 +59,7 @@ byte checkSensor(byte sensorInput, byte statusOutput)
   if( sensorReading < 400 ) {
     // Wire shorted. Possible tampering.
     DEBUG_LOG(1, "WIRE SHORTED");
-    soundAlarm = true;
+    soundAlarm = false;
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
     return WIRE_SHORTED;
   } else if ( sensorReading >= 400 && sensorReading < 590 ) {
@@ -78,7 +78,7 @@ byte checkSensor(byte sensorInput, byte statusOutput)
   } else {
     // Open circuit. Cut or tamper triggered.
     DEBUG_LOG(1, "TAMPERED");
-    soundAlarm = true;
+    soundAlarm = false;
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
     return TAMPERED; 
   }
@@ -95,31 +95,6 @@ void check_sensors() {
     }
   }
 }
-
-//void publish_pir_status() {
-//  progBuffer[0] = '\0';
-//  strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[7])));
-//  if(previousPirDetection) {
-//    DEBUG_LOG(1, "pir sensor detection");
-//    mqttClient.publish(progBuffer, "1");
-//  }
-//  else {
-//    DEBUG_LOG(1, "pir sensor NO detection");
-//    mqttClient.publish(progBuffer, "0");
-//  }
-//}
-//
-//void read_pir_sensor() {
-//  boolean currentPirDetection;
-//  if(digitalRead(PIR_SENSOR_PIN) == HIGH)
-//    currentPirDetection = true;
-//  else
-//    currentPirDetection = false;
-//  if (currentPirDetection != previousPirDetection) {
-//    previousPirDetection = currentPirDetection;
-//    publish_pir_status();
-//  }
-//}
 
 
 #endif   /* HOMESECURITYIOT_SECURITYSHIELDCONFIG_H_ */

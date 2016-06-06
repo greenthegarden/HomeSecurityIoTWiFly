@@ -1,0 +1,49 @@
+import org.openhab.core.library.types.*
+//import org.openhab.core.library.items.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+
+import org.joda.time.*
+
+//var java.util.concurrent.locks.ReentrantLock lock = new java.util.concurrent.locks.ReentrantLock()
+
+// Sensor States
+// SHORTED = 0;
+// NORMAL = 1;
+// TRIGGERED = 2;
+// TAMPERED = 3;
+
+rule "Process security sensor state messages"
+	when
+		Item SecuritySensorStates changed
+	then
+	  // extract variables
+		val String[] messageParts = SecuritySensorStates.state.toString.split(",");
+		val String sensor = messageParts.get(0);
+		val String state = messageParts.get(1);
+
+		// process each sensor
+		if (sensor == "1") {	// passage sensor
+			if (state == "0") {
+				postUpdate(PassageSensorStateString, "SHORTED")
+				sendCommand(PassageSensorShorted, ON)
+				sendCommand(PassageSensorTriggered, OFF)
+			} else if (state == "1") {
+				postUpdate(PassageSensorStateString, "NORMAL")
+				sendCommand(PassageSensorShorted, OFF)
+				sendCommand(PassageSensorTriggered, OFF)
+				sendCommand(PassageSensorTampered, OFF)
+			} else if (state == "2") {
+				postUpdate(PassageSensorStateString, "TRIGGERED")
+				sendCommand(PassageSensorShorted, OFF)
+				sendCommand(PassageSensorTriggered, ON)
+				sendCommand(PassageSensorTampered, OFF)
+				postUpdate(WeatherStationProcessedLastUpdate, new DateTimeType())
+			} else if (state == "3") {
+				postUpdate(PassageSensorStateString, "TAMPERED")
+				sendCommand(PassageSensorShorted, OFF)
+				sendCommand(PassageSensorTriggered, OFF)
+				sendCommand(PassageSensorTampered, ON)
+			}
+		}
+end
