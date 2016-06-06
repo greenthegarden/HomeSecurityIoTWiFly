@@ -8,20 +8,20 @@
 #endif
 
 // Use analog inputs 0 through 3 for sensor connections A through D
-const byte channelAInput = 0;
-const byte channelBInput = 1;
-const byte channelCInput = 2;
-const byte channelDInput = 3;
+const byte CHANNEL_A_INPUT = A0;
+const byte CHANNEL_B_INPUT = A1;
+const byte CHANNEL_C_INPUT = A2;
+const byte CHANNEL_D_INPUT = A3;
 
 // Use digital outputs 4 through 7 for status indicator LEDs A through D
-const byte channelALed = 4;
-const byte channelBLed = 5;
-const byte channelCLed = 6;
-const byte channelDLed = 7;
+const byte CHANNEL_A_LED = 4;
+const byte CHANNEL_B_LED = 5;
+const byte CHANNEL_C_LED = 6;
+const byte CHANNEL_D_LED = 7;
 
 
-const byte CONNECTED_SENSORS[] = { channelAInput };
-const byte SENSOR_OUTPUTS[] = { channelALed };
+const byte CONNECTED_SENSORS[] = { CHANNEL_D_INPUT };
+const byte SENSOR_OUTPUTS[] = { CHANNEL_D_LED };
 byte sensorStates[] = { 0, 0, 0, 0 };
 
 // sensor states
