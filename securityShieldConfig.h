@@ -20,8 +20,9 @@ const byte CHANNEL_C_LED = 6;
 const byte CHANNEL_D_LED = 7;
 
 
-const byte CONNECTED_SENSORS[] = { CHANNEL_D_INPUT };
-const byte SENSOR_OUTPUTS[] = { CHANNEL_D_LED };
+const byte SENSOR_INPUTS[] = { CHANNEL_A_INPUT, CHANNEL_B_INPUT, CHANNEL_C_INPUT, CHANNEL_D_INPUT };
+const byte SENSOR_LEDS[] = { CHANNEL_A_LED, CHANNEL_B_LED, CHANNEL_C_LED, CHANNEL_D_LED };
+const char SENSOR_REFS[] = { 'A', 'B', 'C', 'D' };
 byte sensorStates[] = { 0, 0, 0, 0 };
 
 // sensor states
@@ -38,12 +39,12 @@ boolean soundAlarm                       = false;
 
 void securitySensorShieldSetup()
 {
-  for (byte idx = 0; idx < ARRAY_SIZE(CONNECTED_SENSORS); idx++) {
-    pinMode(CONNECTED_SENSORS[idx], INPUT);
+  for (byte idx = 0; idx < ARRAY_SIZE(SENSOR_INPUTS); idx++) {
+    pinMode(SENSOR_INPUTS[idx], INPUT);
   }
-  for (byte idx = 0; idx < ARRAY_SIZE(SENSOR_OUTPUTS); idx++) {
-    pinMode(SENSOR_OUTPUTS[idx], OUTPUT);
-    digitalWrite(SENSOR_OUTPUTS[idx], LOW);
+  for (byte idx = 0; idx < ARRAY_SIZE(SENSOR_LEDS); idx++) {
+    pinMode(SENSOR_LEDS[idx], OUTPUT);
+    digitalWrite(SENSOR_LEDS[idx], LOW);
   }
 }
 
@@ -85,12 +86,12 @@ byte checkSensor(byte sensorInput, byte statusOutput)
 }
 
 void check_sensors() {
-  for (byte idx = 0; idx < ARRAY_SIZE(CONNECTED_SENSORS); idx++) {
-    byte state = checkSensor(CONNECTED_SENSORS[idx], SENSOR_OUTPUTS[idx]);
+  for (byte idx = 0; idx < ARRAY_SIZE(SENSOR_INPUTS); idx++) {
+    byte state = checkSensor(SENSOR_INPUTS[idx], SENSOR_LEDS[idx]);
     if (state != sensorStates[idx]) {
       sensorStates[idx] = state;
       if(mqttClientConnected) {
-        publish_sensor_state(idx, state);
+        publish_sensor_state(SENSOR_REFS[idx], state);
       }
     }
   }

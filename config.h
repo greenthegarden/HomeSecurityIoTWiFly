@@ -33,9 +33,10 @@ const int BAUD_RATE               = 9600;
 
 
 void no_network_behaviour() {
-  if(checkSensor(CONNECTED_SENSORS[0], SENSOR_OUTPUTS[0]) != NORMAL_STATE) {
-    repeatTone();
-  }
+  check_sensors();
+//  if(checkSensor(SENSOR_INPUTS[0], SENSOR_LEDS[0]) != NORMAL_STATE) {
+//    repeatTone();
+//  }
 }
 
 

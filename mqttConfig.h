@@ -145,11 +145,23 @@ void publish_uptime()
 
 void publish_sensor_state(byte idx, byte state)
 {  
-  // create message in format "idx,ON"
+  // create message in format "idx,state"
   messBuffer[0] = '\0';
   sprintf(messBuffer, "%i%c%i", idx + 1, COMMAND_SEPARATOR, state);
   progBuffer[0] = '\0';
   strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[4])));
+  DEBUG_LOG(1, "progBuffer: ");
+  DEBUG_LOG(1, progBuffer);
+  mqttClient.publish(progBuffer, messBuffer);
+}
+
+void publish_sensor_state(char ref, byte state)
+{  
+  // create message in format "ref,state"
+  messBuffer[0] = '\0';
+  strcpy(messBuffer, (char*) ref);
+  progBuffer[0] = '\0';
+  strcpy_P(progBuffer, (char*) pgm_read_word(&(STATUS_TOPICS[4])));
   DEBUG_LOG(1, "progBuffer: ");
   DEBUG_LOG(1, progBuffer);
   mqttClient.publish(progBuffer, messBuffer);
