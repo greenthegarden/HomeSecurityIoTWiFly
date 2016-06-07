@@ -57,29 +57,37 @@ byte checkSensor(byte sensorInput, byte statusOutput)
   int sensorReading = analogRead(sensorInput);
   DEBUG_LOG(1, "Sensor reading: ");
   DEBUG_LOG(1, sensorReading);
-  if( sensorReading < 400 ) {
+  if ( sensorReading < 400 ) {
     // Wire shorted. Possible tampering.
     DEBUG_LOG(1, "WIRE SHORTED");
+#if USE_OLED_SHIELD
     soundAlarm = false;
+#endif
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
     return WIRE_SHORTED;
   } else if ( sensorReading >= 400 && sensorReading < 590 ) {
     // Normal state, sensor not triggered
     DEBUG_LOG(1, "NORMAL STATE");
+#if USE_OLED_SHIELD
     soundAlarm = false;
+#endif
     digitalWrite(statusOutput, LOW); // Turn the associated status LED off
     return NORMAL_STATE;
   } else if ( sensorReading >= 590 && sensorReading < 800 ) {
     // Sensor triggered.
     DEBUG_LOG(1, "SENSOR TRIGGERED");
+#if USE_OLED_SHIELD
     alertTone();
     soundAlarm = true;
+#endif
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
     return SENSOR_TRIGGERED;
   } else {
     // Open circuit. Cut or tamper triggered.
     DEBUG_LOG(1, "TAMPERED");
+#if USE_OLED_SHIELD
     soundAlarm = false;
+#endif
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
     return TAMPERED; 
   }

@@ -140,8 +140,10 @@ void loop()
     check_sensors();
   }
 
+#if USE_OLED_SHIELD
   if (soundAlarm) {
     alertTone();
   }
+#endif
 
 }

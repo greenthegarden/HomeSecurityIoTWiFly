@@ -18,6 +18,8 @@ const int BAUD_RATE               = 9600;
 
 
 #define USE_SDCARD false
+#define USE_OLED_SHIELD false
+
 
 #if USE_SDCARD
 #include "sdConfig.h"
@@ -27,7 +29,9 @@ const int BAUD_RATE               = 9600;
 //#include "ethernetConfig.h"
 #include "mqttConfig.h"
 
+#if USE_OLED_SHIELD
 #include "oledShieldConfig.h"
+#endif
 #include "securityShieldConfig.h"
 
 

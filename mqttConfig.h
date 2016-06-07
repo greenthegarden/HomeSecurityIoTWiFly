@@ -155,11 +155,11 @@ void publish_sensor_state(byte idx, byte state)
   mqttClient.publish(progBuffer, messBuffer);
 }
 
-void publish_sensor_state(char ref, byte state)
+void publish_sensor_state(const char* ref, byte state)
 {  
   // create message in format "ref,state"
   messBuffer[0] = '\0';
-  strcpy(messBuffer, (char*) ref);
+  strcpy(messBuffer, ref);
   progBuffer[0] = '\0';
   strcpy_P(progBuffer, (char*) pgm_read_word(&(STATUS_TOPICS[4])));
   DEBUG_LOG(1, "progBuffer: ");
