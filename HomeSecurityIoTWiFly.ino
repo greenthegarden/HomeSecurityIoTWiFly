@@ -9,7 +9,7 @@ boolean mqtt_connect()
     publish_connected();
 //    publish_ip_address();
     // ... and subscribe to topics (should have list)
-    mqttClient.subscribe("homesecurity/control/#");
+    mqttClient.subscribe("homesecurity/#");
   } else {
     DEBUG_LOG(1, "failed, rc = ");
     DEBUG_LOG(1, mqttClient.state());
@@ -47,9 +47,9 @@ void callback(char* topic, uint8_t* payload, unsigned int payloadLength)
 
   // find if topic is matched
   for (byte i = 0; i < ARRAY_SIZE(CONTROL_TOPICS); i++) {
-    progBuffer[0] = '\0';
-    strcpy_P(progBuffer, (PGM_P)pgm_read_word(&(CONTROL_TOPICS[i])));
-    if (strcmp(topic, progBuffer) == 0) {
+    topicBuffer[0] = '\0';
+    strcpy_P(topicBuffer, (PGM_P)pgm_read_word(&(CONTROL_TOPICS[i])));
+    if (strcmp(topic, topicBuffer) == 0) {
       topicIdx = i;
       controlTopicFound = true;
       break;
@@ -120,21 +120,23 @@ void loop()
 {
   unsigned long now = millis();
 
-  if (!mqttClient.connected()) {
-    mqttClientConnected = false;
-    if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
-      lastReconnectAttempt = now;
-      // Attempt to reconnect
-      if (mqtt_connect()) {
-        lastReconnectAttempt = 0;
-        mqttClientConnected = true;
+  if (wiflyConnected) {
+    if (!mqttClient.connected()) {
+      mqttClientConnected = false;
+      if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
+        lastReconnectAttempt = now;
+        // Attempt to reconnect
+        if (mqtt_connect()) {
+          lastReconnectAttempt = 0;
+          mqttClientConnected = true;
+        }
       }
+    } else {
+      // Client connected
+      mqttClient.loop();
     }
-  } else {
-    // Client connected
-    mqttClient.loop();
   }
-
+  
   if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
     sensorReadPreviousMillis = now;
     check_sensors();

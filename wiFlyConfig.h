@@ -1,5 +1,5 @@
-#ifndef MQTTWIFLYWEATHERBOARD_WIFLYCONFIG_H_
-#define MQTTWIFLYWEATHERBOARD_WIFLYCONFIG_H_
+#ifndef HOMESECURITYIOT_WIFLYCONFIG_H_
+#define HOMESECURITYIOT_WIFLYCONFIG_H_
 
 
 /*
@@ -127,17 +127,6 @@ byte wifly_disconnect()
   return 0;
 }
 
-//void wifly_sleep()
-//{
-//  wifly_disconnect();
-//  
-//  DEBUG_LOG(1, "WiFly: setting sleep timer");
-//  WiFly.setSleepTimer(10);
-//
-//  DEBUG_LOG(1, "WiFly: setting wake timer");
-//  WiFly.setWakeTimer(MEASUREMENT_INTERVAL_SECS - 20);
-//}
 
-
-#endif  /* MQTTWIFLYWEATHERBOARD_WIFLYCONFIG_H_ */
+#endif  /* HOMESECURITYIOT_WIFLYCONFIG_H_ */
 

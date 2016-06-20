@@ -6,29 +6,27 @@
 
 
 // MQTT parameters
-IPAddress mqttServerAddr(192, 168, 1, 55);        // Pi eth0 interface                      
+IPAddress mqttServerAddr(192, 168, 1, 50);        // openHAB server
 char* mqttClientId                                = "homesecurity";
 int mqttPort                                      = 1883;
 //#define MQTT_MAX_PACKET_SIZE                      168
 //#define MQTT_KEEPALIVE                            300
 
-boolean mqttClientConnected = false;
+boolean mqttClientConnected                       = false;
 
 unsigned long lastReconnectAttempt                = 0UL;
 const unsigned long RECONNECTION_ATTEMPT_INTERVAL = 30UL * 1000UL;  // attempt to reconnect every 30 seconds
 
 const char COMMAND_SEPARATOR                      = ',';
 
-char message[BUFFER_SIZE];
-
 
 // Status topics
 
-const char WIFLY_STATUS[]       PROGMEM = "homesecurity/status/wifly";
-const char IP_ADDR_STATUS[]     PROGMEM = "homesecurity/status/ip_addr";
-const char UPTIME_STATUS[]      PROGMEM = "homesecurity/status/uptime";
-const char MEMORY_STATUS[]      PROGMEM = "homesecurity/status/memory";
-const char SENSOR_STATUS[]      PROGMEM = "homesecurity/status/sensor";
+const char WIFLY_STATUS[]       PROGMEM = "homesecurity/interior/status/wifly";
+const char IP_ADDR_STATUS[]     PROGMEM = "homesecurity/interior/status/ip_addr";   // 36 chars
+const char UPTIME_STATUS[]      PROGMEM = "homesecurity/interior/status/uptime";
+const char MEMORY_STATUS[]      PROGMEM = "homesecurity/interior/status/memory";
+const char SENSOR_STATUS[]      PROGMEM = "homesecurity/interior/status/sensor";
 
 PGM_P const STATUS_TOPICS[]     PROGMEM = { WIFLY_STATUS,        // idx = 0
                                             IP_ADDR_STATUS,      // idx = 1
@@ -51,7 +49,7 @@ PGM_P const MQTT_PAYLOADS[]           PROGMEM = { MQTT_PAYLOAD_CONNECTED,   // i
                                                 
 // Control topics
 
-const char SENSOR_CONTROL[]     PROGMEM = "homesecurity/control/sensor";
+const char SENSOR_CONTROL[]     PROGMEM = "homesecurity/interior/control/sensor";
 
 PGM_P const CONTROL_TOPICS[]    PROGMEM = { SENSOR_CONTROL,      // idx = 0
                                           };
@@ -111,61 +109,63 @@ boolean readMqttConfiguration() {
 // callback function definition
 void callback(char* topic, uint8_t* payload, unsigned int length);
 
-PubSubClient   mqttClient(mqttServerAddr, mqttPort, callback, networkClient);
+PubSubClient mqttClient(mqttServerAddr, mqttPort, callback, networkClient);
 
 void publish_connected()
 {
-  messBuffer[0] = '\0';
-  strcpy_P(messBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[0])));
-  progBuffer[0] = '\0';
-  strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[0])));
-  mqttClient.publish(progBuffer, messBuffer);
+  messageBuffer[0] = '\0';
+  strcpy_P(messageBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[0])));
+  topicBuffer[0] = '\0';
+  strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[0])));
+  mqttClient.publish(topicBuffer, messageBuffer);
 }
 
 void publish_ip_address()
 {
 //  const byte IP_ADDRESS_BUFFER_SIZE = 16; // "255.255.255.255\0"
 //  static char ipString[IP_ADDRESS_BUFFER_SIZE] = "";
-  messBuffer[0] = '\0';
-  strcpy(messBuffer, WiFly.ip());
+  messageBuffer[0] = '\0';
+  strcpy(messageBuffer, WiFly.ip());
 //  sprintf(ipString, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-  progBuffer[0] = '\0';
-  strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[1])));
-  mqttClient.publish(progBuffer, messBuffer);
+  topicBuffer[0] = '\0';
+  strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[1])));
+  mqttClient.publish(topicBuffer, messageBuffer);
 }
 
 void publish_uptime()
 {
-  messBuffer[0] = '\0';
-  ltoa(millis(), messBuffer, 10);
-  progBuffer[0] = '\0';
-  strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[2])));
-  mqttClient.publish(progBuffer, messBuffer);
+  messageBuffer[0] = '\0';
+  ltoa(millis(), messageBuffer, 10);
+  topicBuffer[0] = '\0';
+  strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[2])));
+  mqttClient.publish(topicBuffer, messageBuffer);
 }
 
-void publish_sensor_state(byte idx, byte state)
-{  
-  // create message in format "idx,state"
-  messBuffer[0] = '\0';
-  sprintf(messBuffer, "%i%c%i", idx + 1, COMMAND_SEPARATOR, state);
-  progBuffer[0] = '\0';
-  strcpy_P(progBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[4])));
-  DEBUG_LOG(1, "progBuffer: ");
-  DEBUG_LOG(1, progBuffer);
-  mqttClient.publish(progBuffer, messBuffer);
-}
+//void publish_sensor_state(byte idx, byte state)
+//{  
+//  // create message in format "idx,state"
+//  messageBuffer[0] = '\0';
+//  sprintf(messageBuffer, "%i%c%i", idx + 1, COMMAND_SEPARATOR, state);
+//  topicBuffer[0] = '\0';
+//  strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[4])));
+//  DEBUG_LOG(1, "topicBuffer: ");
+//  DEBUG_LOG(1, topicBuffer);
+//  mqttClient.publish(topicBuffer, messageBuffer);
+//}
 
-void publish_sensor_state(const char* ref, byte state)
+void publish_sensor_state(char ref, byte state)
 {  
   // create message in format "ref,state"
-  messBuffer[0] = '\0';
-  strcpy(messBuffer, ref);
-  progBuffer[0] = '\0';
-  strcpy_P(progBuffer, (char*) pgm_read_word(&(STATUS_TOPICS[4])));
-  DEBUG_LOG(1, "progBuffer: ");
-  DEBUG_LOG(1, progBuffer);
-  mqttClient.publish(progBuffer, messBuffer);
+  messageBuffer[0] = '\0';
+//  strcpy(messBuffer, ref);
+  sprintf(messageBuffer, "%c%c%i", ref, COMMAND_SEPARATOR, state);
+  topicBuffer[0] = '\0';
+  strcpy_P(topicBuffer, (char*) pgm_read_word(&(STATUS_TOPICS[4])));
+  DEBUG_LOG(1, "topicBuffer: ");
+  DEBUG_LOG(1, topicBuffer);
+  mqttClient.publish(topicBuffer, messageBuffer);
 }
 
 
 #endif   /* HOMESECURITYIOT_MQTTCONFIG_H_ */
+

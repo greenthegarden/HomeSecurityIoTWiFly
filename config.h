@@ -8,9 +8,10 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 
-const byte BUFFER_SIZE            = 32;
-char progBuffer[BUFFER_SIZE];
-char messBuffer[BUFFER_SIZE];
+const byte BUFFER_SIZE            = 60;
+//char progBuffer[BUFFER_SIZE];
+char topicBuffer[BUFFER_SIZE];
+char messageBuffer[BUFFER_SIZE];
 
 const int FLOAT_DECIMAL_PLACES    = 1;
 

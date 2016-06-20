@@ -8,18 +8,18 @@ const byte BUZZER_PIN = 9;
 
 void oledShieldSetup()
 {
-  pinMode(9, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 }
 
 void alertTone()
 {
-  tone(9, NOTE_C4, 500);
+  tone(BUZZER_PIN, NOTE_C4, 500);
   delay(500);
-  tone(9, NOTE_C5, 500);
+  tone(BUZZER_PIN, NOTE_C5, 500);
   delay(500);
-  tone(9, NOTE_C6, 500);
+  tone(BUZZER_PIN, NOTE_C6, 500);
   delay(500);
-  noTone(9);
+  noTone(BUZZER_PIN);
   delay(500);
 }
 
