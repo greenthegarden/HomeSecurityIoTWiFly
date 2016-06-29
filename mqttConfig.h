@@ -54,8 +54,17 @@ const char SENSOR_CONTROL[]     PROGMEM = "homesecurity/interior/control/sensor"
 PGM_P const CONTROL_TOPICS[]    PROGMEM = { SENSOR_CONTROL,      // idx = 0
                                           };
 
-#if USE_SDCARD
-boolean readMqttConfiguration() {
+#if USE_SDCARD_MQTT_CONFIG
+
+const char CONFIG_FILE[] = "mqtt.cfg";
+
+/* FILE FORMAT:
+ * <MQTT Broker ip address> (mqttServerAddr)
+ * <MQTT Client Id>         (mqttClientId)
+ * <MQTT Port>              (mqttPort)
+ */
+
+boolean readSdCardMqttConfiguration() {
   /*
    * Length of the longest line expected in the config file.
    * The larger this number, the more memory is used
@@ -76,9 +85,7 @@ boolean readMqttConfiguration() {
   
   // Read each setting from the file.
   while (cfg.readNextSetting()) {
-    
-    // Put a nameIs() block here for each setting you have.
-    
+    // Put a nameIs() block here for each setting required
     if (cfg.nameIs("mqttBrokerIP")) {
       // Dynamically allocate a copy of the string.
       char* str = cfg.copyValue();
@@ -100,7 +107,6 @@ boolean readMqttConfiguration() {
       DEBUG_LOG(1, cfg.getName());
     }
   }
-  
   // clean up
   cfg.end();
 }
@@ -122,11 +128,17 @@ void publish_connected()
 
 void publish_ip_address()
 {
-//  const byte IP_ADDRESS_BUFFER_SIZE = 16; // "255.255.255.255\0"
-//  static char ipString[IP_ADDRESS_BUFFER_SIZE] = "";
   messageBuffer[0] = '\0';
+#if USE_WIFLY  
   strcpy(messageBuffer, WiFly.ip());
-//  sprintf(ipString, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#elif USE_ETHERNET
+  const byte IP_ADDRESS_BUFFER_SIZE = 16; // "255.255.255.255\0"
+  static char ipString[IP_ADDRESS_BUFFER_SIZE] = "";
+  sprintf(ipString, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  strcpy(messageBuffer, ipString);
+#else
+  strcpy_P(topicBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[1])));
+#endif
   topicBuffer[0] = '\0';
   strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[1])));
   mqttClient.publish(topicBuffer, messageBuffer);

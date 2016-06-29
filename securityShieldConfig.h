@@ -20,10 +20,15 @@ const byte CHANNEL_C_LED = 6;
 const byte CHANNEL_D_LED = 7;
 
 // sensor states
-const byte WIRE_SHORTED = 0;
-const byte NORMAL_STATE = 1;
-const byte SENSOR_TRIGGERED = 2;
-const byte TAMPERED = 3;
+//const byte WIRE_SHORTED = 0;
+//const byte NORMAL_STATE = 1;
+//const byte SENSOR_TRIGGERED = 2;
+//const byte TAMPERED = 3;
+
+typedef enum {
+  WIRE_SHORTED, NORMAL, TRIGGERED, TAMPERED
+} sensorStates_t;
+
 
 unsigned long sensorReadPreviousMillis   = 0UL;
 
@@ -31,18 +36,19 @@ const unsigned long SENSOR_READ_INTERVAL = 500UL;           // interval at which
 
 boolean soundAlarm                       = false;
 
+// see http://playground.arduino.cc/Code/ResourceFriendlyStructs
 typedef struct {
    byte  input;
    byte  led;
    char  ref;
    byte  state;
-} sensor;  
+} sensor_t;  
 
-sensor sensors[] = { { CHANNEL_A_INPUT, CHANNEL_A_LED, 'A', 0 },
-                     { CHANNEL_B_INPUT, CHANNEL_B_LED, 'B', 0 },
-                     { CHANNEL_C_INPUT, CHANNEL_C_LED, 'C', 0 },
-                     { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
-                   };
+sensor_t sensors[] = { { CHANNEL_A_INPUT, CHANNEL_A_LED, 'A', 0 },
+                       { CHANNEL_B_INPUT, CHANNEL_B_LED, 'B', 0 },
+                       { CHANNEL_C_INPUT, CHANNEL_C_LED, 'C', 0 },
+                       { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
+                     };
 
 void securitySensorShieldSetup()
 {
@@ -56,9 +62,10 @@ void securitySensorShieldSetup()
 }
 
 /**
- * Checks the state of a sensor and reports it to the connected host
+ * Returns the state of a sensor and sets led status
  */
-byte checkSensor(byte sensorInput, byte statusOutput)
+//byte checkSensor(byte sensorInput, byte statusOutput)
+sensorStates_t checkSensor(byte sensorInput, byte statusOutput)
 {
   int sensorReading = analogRead(sensorInput);
   DEBUG_LOG(1, "Sensor reading: ");
@@ -78,7 +85,7 @@ byte checkSensor(byte sensorInput, byte statusOutput)
     soundAlarm = false;
 #endif
     digitalWrite(statusOutput, LOW); // Turn the associated status LED off
-    return NORMAL_STATE;
+    return NORMAL;
   } else if ( sensorReading >= 590 && sensorReading < 800 ) {
     // Sensor triggered.
     DEBUG_LOG(1, "SENSOR TRIGGERED");
@@ -87,7 +94,7 @@ byte checkSensor(byte sensorInput, byte statusOutput)
     soundAlarm = true;
 #endif
     digitalWrite(statusOutput, HIGH); // Turn the associated status LED on
-    return SENSOR_TRIGGERED;
+    return TRIGGERED;
   } else {
     // Open circuit. Cut or tamper triggered.
     DEBUG_LOG(1, "TAMPERED");
@@ -104,9 +111,11 @@ void check_sensors() {
     byte state = checkSensor(sensors[idx].input, sensors[idx].led);
     if (state != sensors[idx].state) {
       sensors[idx].state = state;
+#if USE_MQTT
       if(mqttClientConnected) {
         publish_sensor_state(sensors[idx].ref, state);
       }
+#endif
     }
   }
 }

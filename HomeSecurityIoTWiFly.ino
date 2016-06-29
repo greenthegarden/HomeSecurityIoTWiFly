@@ -1,5 +1,6 @@
 #include "config.h"
 
+#if USE_MQTT
 boolean mqtt_connect()
 {
   DEBUG_LOG(1, "Attempting MQTT connection ...");
@@ -69,6 +70,7 @@ void callback(char* topic, uint8_t* payload, unsigned int payloadLength)
   // free memory assigned to message
   free(message);
 }
+#endif
 
 
 /*--------------------------------------------------------------------------------------
@@ -82,31 +84,38 @@ void setup()
 #endif
 
 #if USE_SDCARD
-  // configure chip select pins for SD card and Ethernet
-  pinMode(SDCARD_CS_PIN, OUTPUT);      // set SD card chip select as output:
-  pinMode(ETHERNET_CS_PIN, OUTPUT);    // set Ethernet chip select as output:
+  sdCardSetup();
 
-  pinMode(ETHERNET_CS_PIN, HIGH);      // disable ethernet by pulling high its chip select:
-  // Setup the SD card
-  DEBUG_LOG(1, "Calling SD.begin() ...");
-  if (!SD.begin(SDCARD_CS_PIN)) {
-    DEBUG_LOG(1, "SD.begin() failed.");
-    DEBUG_LOG(1, "Using default settings");
-  }
-  DEBUG_LOG(1, "... succeeded.");
-
-  // Read configurations from the SD card file.
-  readEthernetConfiguration();
-
-  readMqttConfiguration();
+//  // configure chip select pins for SD card and Ethernet
+//  pinMode(SDCARD_CS_PIN, OUTPUT);      // set SD card chip select as output:
+//
+//  pinMode(ETHERNET_CS_PIN, HIGH);      // disable ethernet by pulling high its chip select:
+//  // Setup the SD card
+//  DEBUG_LOG(1, "Calling SD.begin() ...");
+//  if (!SD.begin(SDCARD_CS_PIN)) {
+//    DEBUG_LOG(1, "SD.begin() failed.");
+//    DEBUG_LOG(1, "Using default settings");
+//  }
+//  DEBUG_LOG(1, "... succeeded.");
+//
+//  // Read configurations from the SD card file.
+//  readEthernetConfiguration();
+//
+//  readMqttConfiguration();
 #endif
 
+#if USE_WIFLY
   // Configure WiFly
   DEBUG_LOG(1, "configuring WiFly ...");
   wifly_configure();
 
   DEBUG_LOG(1, "connecting WiFly ...");
   wifly_connect();
+#elif USE_ETHERNET
+    // Configure Ethernet
+  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
+  Ethernet.begin(mac, ip);
+#endif
 
   // set up for PIR sensor
   securitySensorShieldSetup();
@@ -120,7 +129,10 @@ void loop()
 {
   unsigned long now = millis();
 
+#if USE_MQTT
+#if USE_WIFLY
   if (wiflyConnected) {
+#endif
     if (!mqttClient.connected()) {
       mqttClientConnected = false;
       if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
@@ -135,7 +147,10 @@ void loop()
       // Client connected
       mqttClient.loop();
     }
+#if USE_WIFLY
   }
+#endif
+#endif
   
   if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
     sensorReadPreviousMillis = now;
