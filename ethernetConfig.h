@@ -14,9 +14,9 @@ const byte          ETHERNET_CS_PIN       = 10;
 
 byte mac[]                                = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 
-IPAddress ip(192, 168, 1, 90);
+IPAddress           ip(192, 168, 1, 90);
 
-EthernetClient networkClient;
+EthernetClient      networkClient;
 
 
 #if USE_SDCARD_ETHERNET_CONFIG

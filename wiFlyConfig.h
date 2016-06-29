@@ -68,8 +68,8 @@ reboot
 
 #include <SoftwareSerial.h>
 
-const byte WIFLY_SERIAL_RX = 11;
-const byte WIFLY_SERIAL_TX = 12;
+const byte     WIFLY_SERIAL_RX = 11;
+const byte     WIFLY_SERIAL_TX = 12;
 
 SoftwareSerial wifly_serial(WIFLY_SERIAL_RX, WIFLY_SERIAL_TX);
 
@@ -80,9 +80,9 @@ SoftwareSerial wifly_serial(WIFLY_SERIAL_RX, WIFLY_SERIAL_TX);
 
 #include "networkConfig.h"
 
-boolean wiflyConnected = false;
+boolean        wiflyConnected = false;
 
-WiFlyClient networkClient;
+WiFlyClient    networkClient;
 
 void wifly_configure()
 {
