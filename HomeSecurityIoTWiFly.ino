@@ -10,7 +10,7 @@ boolean mqtt_connect()
     publish_connected();
 //    publish_ip_address();
     // ... and subscribe to topics (should have list)
-    mqttClient.subscribe("homesecurity/#");
+    mqttClient.subscribe("security/#");
   } else {
     DEBUG_LOG(1, "failed, rc = ");
     DEBUG_LOG(1, mqttClient.state());

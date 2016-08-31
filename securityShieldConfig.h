@@ -26,7 +26,10 @@ const byte CHANNEL_D_LED = 7;
 //const byte TAMPERED = 3;
 
 typedef enum {
-  WIRE_SHORTED, NORMAL, TRIGGERED, TAMPERED
+  WIRE_SHORTED = 0,
+  NORMAL       = 1,
+  TRIGGERED    = 2,
+  TAMPERED     = 3,
 } sensorStates_t;
 
 
@@ -38,16 +41,19 @@ boolean soundAlarm                       = false;
 
 // see http://playground.arduino.cc/Code/ResourceFriendlyStructs
 typedef struct {
-   byte  input;
-   byte  led;
-   char  ref;
-   byte  state;
+   byte            input;
+   byte            led;
+   char            ref;
+   sensorStates_t  state;
 } sensor_t;  
 
-sensor_t sensors[] = { { CHANNEL_A_INPUT, CHANNEL_A_LED, 'A', 0 },
-                       { CHANNEL_B_INPUT, CHANNEL_B_LED, 'B', 0 },
-                       { CHANNEL_C_INPUT, CHANNEL_C_LED, 'C', 0 },
-                       { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
+//sensor_t sensors[] = { { CHANNEL_A_INPUT, CHANNEL_A_LED, 'A', 0 },
+//                       { CHANNEL_B_INPUT, CHANNEL_B_LED, 'B', 0 },
+//                       { CHANNEL_C_INPUT, CHANNEL_C_LED, 'C', 0 },
+//                       { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
+//                     };
+
+sensor_t sensors[] = { { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
                      };
 
 void securitySensorShieldSetup()
