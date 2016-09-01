@@ -56,7 +56,7 @@ typedef struct {
 sensor_t sensors[] = { { CHANNEL_D_INPUT, CHANNEL_D_LED, 'D', 0 },
                      };
 
-void securitySensorShieldSetup()
+void security_sensor_shield_init()
 {
   for (byte idx = 0; idx < ARRAY_SIZE(sensors); idx++) {
     pinMode(sensors[idx].input, INPUT);
@@ -71,7 +71,7 @@ void securitySensorShieldSetup()
  * Returns the state of a sensor and sets led status
  */
 //byte checkSensor(byte sensorInput, byte statusOutput)
-sensorStates_t checkSensor(byte sensorInput, byte statusOutput)
+sensorStates_t check_sensor(byte sensorInput, byte statusOutput)
 {
   int sensorReading = analogRead(sensorInput);
   DEBUG_LOG(1, "Sensor reading: ");
@@ -114,7 +114,7 @@ sensorStates_t checkSensor(byte sensorInput, byte statusOutput)
 
 void check_sensors() {
   for (byte idx = 0; idx < ARRAY_SIZE(sensors); idx++) {
-    byte state = checkSensor(sensors[idx].input, sensors[idx].led);
+    byte state = check_sensor(sensors[idx].input, sensors[idx].led);
     if (state != sensors[idx].state) {
       sensors[idx].state = state;
 #if USE_MQTT

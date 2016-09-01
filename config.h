@@ -7,15 +7,14 @@
 // Macros
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+// global variable definitions
+const int BAUD_RATE               = 9600;
 
 const byte BUFFER_SIZE            = 60;
-//char progBuffer[BUFFER_SIZE];
 char topicBuffer[BUFFER_SIZE];
 char messageBuffer[BUFFER_SIZE];
 
-const int FLOAT_DECIMAL_PLACES    = 1;
-
-const int BAUD_RATE               = 9600;
+//const int FLOAT_DECIMAL_PLACES    = 1;
 
 #define USE_WIFLY                   true
 #define USE_ETHERNET                false

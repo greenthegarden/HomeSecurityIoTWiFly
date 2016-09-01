@@ -8,5 +8,5 @@ const char PASSPHRASE[]       = "C@mbridge&";
 boolean    mode               = true; //or WEP_MODE
 
 
-#endif  /* MQTTWIFLYWEATHERBOARD_NETWORKCONFIG_H_ */
+#endif  /* HOMESECURITYIOT_NETWORKCONFIG_H_ */
 
