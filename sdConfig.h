@@ -30,7 +30,9 @@ boolean sd_init()
   return 1;
 }
 
+File configFile;
 
+const char CONFIG_FILE[] = "SECUR.CFG";
 
 
 #endif   /* HOMESECURITYIOT_SDCONFIG_H_ */

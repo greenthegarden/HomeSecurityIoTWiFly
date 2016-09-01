@@ -10,7 +10,6 @@ boolean mqtt_connect()
     publish_connected();
 //    publish_ip_address();
     // ... and subscribe to topics (should have list)
-    mqttClient.subscribe("security/#");
   } else {
     DEBUG_LOG(1, "failed, rc = ");
     DEBUG_LOG(1, mqttClient.state());
@@ -42,11 +41,11 @@ void setup()
   // Configure WiFly
   DEBUG_LOG(1, "configuring WiFly ...");
   wifly_configure();
-
   DEBUG_LOG(1, "connecting WiFly ...");
   wifly_connect();
 #elif USE_ETHERNET
-    // Configure Ethernet
+  // Configure Ethernet
+  DEBUG_LOG(1, "configuring Ethernet ...");
   ethernet_init();
   delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
   if (NetEeprom.begin() == 0) {

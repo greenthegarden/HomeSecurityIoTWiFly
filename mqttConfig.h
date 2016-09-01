@@ -94,7 +94,7 @@ void publish_ip_address()
 #elif USE_ETHERNET
   const byte IP_ADDRESS_BUFFER_SIZE = 16; // "255.255.255.255\0"
   static char ipString[IP_ADDRESS_BUFFER_SIZE] = "";
-  sprintf(ipString, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  sprintf(ipString, "%d.%d.%d.%d", Ethernet.localIP()[0], Ethernet.localIP()[1], Ethernet.localIP()[2], Ethernet.localIP()[3]);
   strcpy(messageBuffer, ipString);
 #else
   // publish an error
@@ -183,13 +183,21 @@ boolean mqtt_configuration() {
 }
 #endif
 
+byte mqtt_defaults()
+{
+  strcpy(mqttClientId, "security");
+  mqttPort = 1883;  
+}
+
 byte mqtt_init()
 {
 #if !USE_SDCARD
-  strcpy(mqttClientId, "security");
-  mqttPort = 1883;
+  mqtt_defaults();
 #else
-  mqtt_configuration();
+  if (use_default_settings)
+    mqtt_defaults();
+  else
+    mqtt_configuration();
 #endif
 }
 

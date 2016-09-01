@@ -14,37 +14,34 @@ const byte BUFFER_SIZE            = 60;
 char topicBuffer[BUFFER_SIZE];
 char messageBuffer[BUFFER_SIZE];
 
-//const int FLOAT_DECIMAL_PLACES    = 1;
-
 #define USE_WIFLY                   true
 #define USE_ETHERNET                false
-//#define USE_SDCARD                  true
-#define USE_OLED_SHIELD             false
-
-#define USE_SDCARD_MQTT_CONFIG      false
-#define USE_SDCARD_ETHERNET_CONFIG  false
-
-#if (USE_SDCARD_MQTT_CONFIG || USE_SDCARD_ETHERNET_CONFIG)
-#include "sdConfig.h"
-#endif
 
 #if USE_WIFLY
-#include "wiFlyConfig.h"
-#define USE_MQTT true
+  #include "wiFlyConfig.h"
+  #define USE_MQTT true
 #elif USE_ETHERNET
-#include "ethernetConfig.h"
-#define USE_MQTT true
+  #include "ethernetConfig.h"
+  #define USE_MQTT                  true
 #else
-#define USE_MQTT false
+  #define USE_MQTT                  false
+#endif
+
+#define USE_SD                      false
+
+#if (USE_MQTT && USE_SD)
+  #include "sdConfig.h"
 #endif
 
 // include MQTT configuration if using a networked system
 #if USE_MQTT
-#include "mqttConfig.h"
+  #include "mqttConfig.h"
 #endif
 
+#define USE_OLED_SHIELD             false
+
 #if USE_OLED_SHIELD
-#include "oledShieldConfig.h"
+  #include "oledShieldConfig.h"
 #endif
 
 #include "securityShieldConfig.h"
