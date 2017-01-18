@@ -20,8 +20,7 @@ byte mac[]                                = { 0xCA, 0xFE, 0xBA, 0xBE, 0x00, 0x01
 
 EthernetClient      networkClient;
 
-void ethernet_init()
-{
+void ethernet_init() {
   pinMode(ETHERNET_CS_PIN, OUTPUT);    // set Ethernet chip select as output:
 }
 

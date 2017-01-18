@@ -51,8 +51,8 @@ void setup()
   // Configure Ethernet
   DEBUG_LOG(1, "Ethernet:")
   DEBUG_LOG(1, "   configuring ...");
-  ethernet_init();
-  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
+//  ethernet_init();
+//  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
 //  NetEeprom.begin();
  if (Ethernet.begin(mac) == 0) {
    DEBUG_LOG(1, "IP failed");
