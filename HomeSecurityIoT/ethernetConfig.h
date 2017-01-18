@@ -2,21 +2,16 @@
 #define HOMESECURITYIOT_ETHERNETCONFIG_H_
 
 
-// Use NetEEPROM library read MAC address from EEPROM
-#include <EEPROM.h>
 #include <SPI.h>
 #include <Ethernet.h>
-//#include <NetEEPROM.h>
 
 
 const unsigned long NETWORK_STARTUP_DELAY = 5000UL;
 
 const byte          ETHERNET_CS_PIN       = 10;
 
-
-byte mac[]                                = { 0xCA, 0xFE, 0xBA, 0xBE, 0x00, 0x01 };
-
-//IPAddress           ip(192, 168, 1, 90);
+// the media access control (ethernet hardware) address for the shield:
+byte mac[]                                = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 EthernetClient      networkClient;
 

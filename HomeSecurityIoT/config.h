@@ -14,39 +14,9 @@ const byte BUFFER_SIZE            = 60;
 char topicBuffer[BUFFER_SIZE];
 char payloadBuffer[BUFFER_SIZE];
 
-#define USE_WIFLY                   false
-#define USE_ETHERNET                true
-
-#if USE_WIFLY
-  #include "wiFlyConfig.h"
-  #define USE_MQTT                  true
-#elif USE_ETHERNET
-  #include "ethernetConfig.h"
-  #define USE_MQTT                  true
-#else
-  #define USE_MQTT                  false
-#endif
-
-#define USE_SD                      false
-
-#if (USE_MQTT && USE_SD)
-  #include "sdConfig.h"
-#endif
-
-// include MQTT configuration if using a networked system
-#if USE_MQTT
-  #include "mqttConfig.h"
-#endif
-
-#define USE_OLED_SHIELD             false
-
-#if USE_OLED_SHIELD
-  #include "oledShieldConfig.h"
-#endif
-
+#include "ethernetConfig.h"
+#include "mqttConfig.h"
 #include "securityShieldConfig.h"
-
-
 
 void no_network_behaviour() {
   check_sensors();

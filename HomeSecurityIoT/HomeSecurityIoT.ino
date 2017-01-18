@@ -2,7 +2,6 @@
 
 #include "config.h"
 
-#if USE_MQTT
 boolean mqtt_connect()
 {
   DEBUG_LOG(1, "MQTT:");
@@ -19,7 +18,6 @@ boolean mqtt_connect()
   }
   return mqttClient.connected();
 }
-#endif
 
 
 /*--------------------------------------------------------------------------------------
@@ -32,35 +30,18 @@ void setup()
   Serial.begin(BAUD_RATE);
 #endif
 
-#if USE_SDCARD
-  sd_init();
-#else
-#if USE_MQTT
   mqtt_init();
-#endif
-#endif
 
-#if USE_WIFLY
-  // Configure WiFly
-  DEBUG_LOG(1, "WiFly:")
-  DEBUG_LOG(1, "   configuring ...");
-  wifly_configure();
-  DEBUG_LOG(1, "   connecting ...");
-  wifly_connect();
-#elif USE_ETHERNET
   // Configure Ethernet
   DEBUG_LOG(1, "Ethernet:")
   DEBUG_LOG(1, "   configuring ...");
 //  ethernet_init();
 //  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
-//  NetEeprom.begin();
- if (Ethernet.begin(mac) == 0) {
-   DEBUG_LOG(1, "IP failed");
- }
- else {
+  if (Ethernet.begin(mac) == 0) {
+    DEBUG_LOG(1, "IP failed");
+  } else {
     DEBUG_LOG(1, Ethernet.localIP());
   }
-#endif
 
   // set up for PIR sensor
   security_sensor_shield_init();
@@ -74,10 +55,6 @@ void loop()
 {
   unsigned long now = millis();
 
-#if USE_MQTT
-#if USE_WIFLY
-  if (wiflyConnected) {
-#endif
     if (!mqttClient.connected()) {
       mqttClientConnected = false;
       if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
@@ -92,10 +69,6 @@ void loop()
       // Client connected
       mqttClient.loop();
     }
-#if USE_WIFLY
-  }
-#endif
-#endif
 
   if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
     sensorReadPreviousMillis = now;

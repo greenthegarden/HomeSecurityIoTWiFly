@@ -123,62 +123,6 @@ void publish_sensor_state(char ref, byte state)
   mqttClient.publish(topicBuffer, payloadBuffer);
 }
 
-#if USE_SDCARD
-
-// expects the following format for elements with the CONFIG_FILE:
-// mqttBrokerAddrStr=192.168.1.50
-// mqttClientId=security
-// mqttPort=1883
-
-boolean mqtt_configuration() {
-  /*
-   * Length of the longest line expected in the config file.
-   * The larger this number, the more memory is used
-   * to read the file.
-   * You probably won't need to change this number.
-   */
-  const uint8_t CONFIG_LINE_LENGTH = 32;
-
-  // The open configuration file.
-  SDConfigFile cfg;
-
-  // Open the configuration file.
-  if (!cfg.begin(CONFIG_FILE, CONFIG_LINE_LENGTH)) {
-    DEBUG_LOG(1, "Failed to open configuration file: ");
-    DEBUG_LOG(1, CONFIG_FILE);
-    return false;
-  }
-
-  // Read each setting from the file.
-  while (cfg.readNextSetting()) {
-    // Put a nameIs() block here for each setting required
-    if (cfg.nameIs("mqttBrokerAddrStr")) {
-      // Dynamically allocate a copy of the string.
-      char* str = cfg.copyValue();
-      mqttServerAddr.fromString(str);
-      DEBUG_LOG(1, "Read mqttBrokerAddrStr: ");
-      DEBUG_LOG(1, str);
-    } else if (cfg.nameIs("mqttClientId")) { // mqttClientId string (char *)
-      // Dynamically allocate a copy of the string.
-      mqttClientId = cfg.copyValue();
-      strcpy(mqttClientId, str);
-      DEBUG_LOG(1, "Read mqttClientId: ");
-      DEBUG_LOG(1, mqttClientId);
-    } else if (cfg.nameIs("mqttPort")) { // mqttPort integer
-      mqttPort = cfg.getIntValue();
-      DEBUG_LOG(1, "Read mqttPort: ");
-      DEBUG_LOG(1, mqttPort);
-    } else {
-      // report unrecognized names.
-      DEBUG_LOG(1, "Unknown name in config: ");
-      DEBUG_LOG(1, cfg.getName());
-    }
-  }
-  // clean up
-  cfg.end();
-}
-#endif
-
 byte mqtt_defaults()
 {
   strcpy(mqttClientId, "security");
@@ -188,14 +132,7 @@ byte mqtt_defaults()
 
 byte mqtt_init()
 {
-#if !USE_SDCARD
   mqtt_defaults();
-#else
-  if (use_default_settings)
-    mqtt_defaults();
-  else
-    mqtt_configuration();
-#endif
   return 1;
 }
 
