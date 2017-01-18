@@ -30,18 +30,16 @@ void setup()
   Serial.begin(BAUD_RATE);
 #endif
 
-  mqtt_init();
+if (ethernet_init()) {
+  DEBUG_LOG(1, "Ethernet configured");
+} else {
+  DEBUG_LOG(1, "Ethernet failed");
+  DEBUG_LOG(1, "Halting");
+  for (;;)
+    ;
+}
 
-  // Configure Ethernet
-  DEBUG_LOG(1, "Ethernet:")
-  DEBUG_LOG(1, "   configuring ...");
-//  ethernet_init();
-//  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
-  if (Ethernet.begin(mac) == 0) {
-    DEBUG_LOG(1, "IP failed");
-  } else {
-    DEBUG_LOG(1, Ethernet.localIP());
-  }
+  mqtt_init();
 
   // set up for PIR sensor
   security_sensor_shield_init();
@@ -74,11 +72,4 @@ void loop()
     sensorReadPreviousMillis = now;
     check_sensors();
   }
-
-#if USE_OLED_SHIELD
-  if (soundAlarm) {
-    alertTone();
-  }
-#endif
-
 }
