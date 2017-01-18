@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 #include <SPI.h>
 #include <Ethernet.h>
-#include <NetEEPROM.h>
+//#include <NetEEPROM.h>
 
 
 const unsigned long NETWORK_STARTUP_DELAY = 5000UL;
@@ -14,7 +14,7 @@ const unsigned long NETWORK_STARTUP_DELAY = 5000UL;
 const byte          ETHERNET_CS_PIN       = 10;
 
 
-//byte mac[]                                = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
+byte mac[]                                = { 0xCA, 0xFE, 0xBA, 0xBE, 0x00, 0x01 };
 
 //IPAddress           ip(192, 168, 1, 90);
 
@@ -27,4 +27,3 @@ void ethernet_init()
 
 
 #endif   /* HOMESECURITYIOT_ETHERNETCONFIG_H_ */
-

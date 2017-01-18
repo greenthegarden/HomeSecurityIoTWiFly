@@ -5,9 +5,10 @@
 #if USE_MQTT
 boolean mqtt_connect()
 {
-  DEBUG_LOG(1, "Attempting MQTT connection ...");
+  DEBUG_LOG(1, "MQTT:");
+  DEBUG_LOG(1, "   connecting");
   if (mqttClient.connect(mqttClientId)) {
-    DEBUG_LOG(1, "  connected");
+    DEBUG_LOG(1, "   connected");
     // Once connected, publish an announcement ...
     publish_connected();
 //    publish_ip_address();
@@ -41,23 +42,24 @@ void setup()
 
 #if USE_WIFLY
   // Configure WiFly
-  DEBUG_LOG(1, "configuring WiFly ...");
+  DEBUG_LOG(1, "WiFly:")
+  DEBUG_LOG(1, "   configuring ...");
   wifly_configure();
-  DEBUG_LOG(1, "connecting WiFly ...");
+  DEBUG_LOG(1, "   connecting ...");
   wifly_connect();
 #elif USE_ETHERNET
   // Configure Ethernet
-  DEBUG_LOG(1, "configuring Ethernet ...");
+  DEBUG_LOG(1, "Ethernet:")
+  DEBUG_LOG(1, "   configuring ...");
   ethernet_init();
   delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
-  NetEeprom.begin();
-//  if (NetEeprom.begin() == 0) {
-//    DEBUG_LOG(1, "IP failed");
-//  }
-//  else {
+//  NetEeprom.begin();
+ if (Ethernet.begin(mac) == 0) {
+   DEBUG_LOG(1, "IP failed");
+ }
+ else {
     DEBUG_LOG(1, Ethernet.localIP());
-//  }
-  //Ethernet.begin(mac, ip);
+  }
 #endif
 
   // set up for PIR sensor
