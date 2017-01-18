@@ -1,0 +1,39 @@
+#ifndef HOMESECURITYIOT_SDCONFIG_H_
+#define HOMESECURITYIOT_SDCONFIG_H_
+
+
+#include <SPI.h>
+#include <SD.h>
+#include <SDConfigFile.h>
+
+
+const byte SDCARD_CS_PIN = 4;  // define SD Card chip select pin
+
+boolean use_default_settings = true;
+
+boolean sd_init()
+{
+  // configure chip select pins for SD card and Ethernet
+  pinMode(SDCARD_CS_PIN, OUTPUT);      // set SD card chip select as output:
+#if USE_ETHERNET
+  pinMode(ETHERNET_CS_PIN, HIGH);      // disable ethernet by pulling high its chip select:
+#endif
+  // Setup the SD card
+  DEBUG_LOG(1, "Calling SD.begin() ...");
+  if (!SD.begin(SDCARD_CS_PIN)) {
+    DEBUG_LOG(1, "SD.begin() failed.");
+    DEBUG_LOG(1, "Will use default settings");
+    return 0;
+  }
+  DEBUG_LOG(1, "... succeeded.");
+  use_default_settings = false;
+  return 1;
+}
+
+File configFile;
+
+const char CONFIG_FILE[] = "SECUR.CFG";
+
+
+#endif   /* HOMESECURITYIOT_SDCONFIG_H_ */
+
