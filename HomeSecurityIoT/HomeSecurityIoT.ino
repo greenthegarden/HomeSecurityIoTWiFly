@@ -6,7 +6,7 @@ boolean mqtt_connect()
 {
   DEBUG_LOG(1, "MQTT:");
   DEBUG_LOG(1, "   connecting");
-  if (mqttClient.connect(mqttClientId)) {
+  if (mqttClient.connect(mqttClientId, MQTT_USERNAME, MQTT_PASSWORD)) {
     DEBUG_LOG(1, "   connected");
     // Once connected, publish an announcement ...
     publish_connected();
@@ -53,23 +53,28 @@ void loop()
 {
   unsigned long now = millis();
 
-    if (!mqttClient.connected()) {
-      mqttClientConnected = false;
-      if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
-        lastReconnectAttempt = now;
-        // Attempt to reconnect
-        if (mqtt_connect()) {
-          lastReconnectAttempt = 0;
-          mqttClientConnected = true;
-        }
+  if (!mqttClient.connected()) {
+    mqttClientConnected = false;
+    if (now - lastReconnectAttempt > RECONNECTION_ATTEMPT_INTERVAL) {
+      lastReconnectAttempt = now;
+      // Attempt to reconnect
+      if (mqtt_connect()) {
+        lastReconnectAttempt = 0;
+        mqttClientConnected = true;
+        DEBUG_LOG(2, "mqttClientConnected:");
+        DEBUG_LOG(2, mqttClientConnected);
       }
-    } else {
-      // Client connected
-      mqttClient.loop();
     }
+  } else {
+    // Client connected
+    mqttClient.loop();
+  }
 
-  if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
-    sensorReadPreviousMillis = now;
-    check_sensors();
+  // only take sensor measurements when connected to mqtt broker
+  if (mqttClientConnected) {
+    if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
+      sensorReadPreviousMillis = now;
+      check_sensors();
+    }
   }
 }

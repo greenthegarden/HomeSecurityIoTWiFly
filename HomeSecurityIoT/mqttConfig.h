@@ -9,6 +9,8 @@
 IPAddress mqttServerAddr(192, 168, 1, 52);        //  mqtt server on emonPi
 char mqttClientId[BUFFER_SIZE];
 //char* mqttClientId                                = "security";
+const char * MQTT_USERNAME                        = "emonpi";
+const char * MQTT_PASSWORD                        = "emonpimqtt2016";
 int mqttPort                                      = 1883;
 
 boolean mqttClientConnected                       = false;
