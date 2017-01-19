@@ -2,35 +2,42 @@
 #define HOMESECURITYIOT_ETHERNETCONFIG_H_
 
 
+// Ethernet libraries
 #include <SPI.h>
+
+#ifndef ETHERNET_SHIELD_VERSION
+#define ETHERNET_SHIELD_VERSION 2
+#endif
+
+#if ETHERNET_SHIELD_VERSION == 1
 #include <Ethernet.h>
+#elif ETHERNET_SHIELD_VERSION == 2
+#include <Ethernet2.h>
+#endif
 
+// Update these with values suitable for your network.
+byte mac[] = {0x90, 0xA2, 0xDA,
+              0x0F, 0xFC, 0xA9}; // value for Arduino Ethernet Shield 2
 
-const unsigned long NETWORK_STARTUP_DELAY = 5000UL;
+EthernetClient networkClient;
 
-const byte          ETHERNET_CS_PIN       = 10;
+const unsigned long NETWORK_STARTUP_DELAY = 1500UL;
 
-// the media access control (ethernet hardware) address for the shield:
-byte mac[]                                = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-EthernetClient      networkClient;
-
-byte ethernet_init()
-{
-  pinMode(ETHERNET_CS_PIN, OUTPUT);    // set Ethernet chip select as output:
+byte ethernet_init() {
+  delay(NETWORK_STARTUP_DELAY);
 
   // Configure Ethernet
-  delay(NETWORK_STARTUP_DELAY); // allow some time for Ethernet processor to come out of reset on Arduino power up:
-
   if (Ethernet.begin(mac) == 0) {
-    DEBUG_LOG(1, "IP failed!!");
+    DEBUG_LOG(1, "Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
     return 0;
   }
+
+  DEBUG_LOG(1, "IP:");
   DEBUG_LOG(1, Ethernet.localIP());
-//    delay(NETWORK_STARTUP_DELAY);
+
   return 1;
 }
-
 
 
 #endif   /* HOMESECURITYIOT_ETHERNETCONFIG_H_ */
