@@ -10,7 +10,8 @@ boolean mqtt_connect()
     DEBUG_LOG(1, "   connected");
     // Once connected, publish an announcement ...
     publish_connected();
-//    publish_ip_address();
+    publish_configuration();
+    publish_status();
     // ... and subscribe to topics (should have list)
   } else {
     DEBUG_LOG(1, "failed, rc = ");
@@ -30,14 +31,14 @@ void setup()
   Serial.begin(BAUD_RATE);
 #endif
 
-if (ethernet_init()) {
-  DEBUG_LOG(1, "Ethernet configured");
-} else {
-  DEBUG_LOG(1, "Ethernet failed");
-  DEBUG_LOG(1, "Halting");
-  for (;;)
-    ;
-}
+  if (ethernet_init()) {
+    DEBUG_LOG(1, "Ethernet configured");
+  } else {
+    DEBUG_LOG(1, "Ethernet failed");
+    DEBUG_LOG(1, "Halting");
+    for (;;)
+      ;
+  }
 
   mqtt_init();
 
