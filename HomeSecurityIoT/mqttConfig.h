@@ -13,16 +13,15 @@ const char * MQTT_USERNAME                        = "emonpi";
 const char * MQTT_PASSWORD                        = "emonpimqtt2016";
 int mqttPort                                      = 1883;
 
-boolean mqttClientConnected                       = false;
-
 unsigned long lastReconnectAttempt                = 0UL;
 const unsigned long RECONNECTION_ATTEMPT_INTERVAL = 30UL * 1000UL;  // attempt to reconnect every 30 seconds
+
+boolean mqttClientConnected                       = false;
 
 const char COMMAND_SEPARATOR                      = ',';
 
 // callback definition for MQTT
-void callback(char* topic, uint8_t* payload, unsigned int length)
-{
+void callback(char* topic, uint8_t* payload, unsigned int length) {
   // nothing to do here!!
 }
 
@@ -58,12 +57,14 @@ typedef enum {
 
 // Status topics
 const char MQTT_STATUS[]        PROGMEM = "homesecurity/interior/status/mqtt";
+const char INTERVAL_STATUS[]     PROGMEM = "homesecurity/interior/status/interval";
 const char IP_ADDR_STATUS[]     PROGMEM = "homesecurity/interior/status/ip_addr";   // 36 chars
 const char UPTIME_STATUS[]      PROGMEM = "homesecurity/interior/status/uptime";
 const char MEMORY_STATUS[]      PROGMEM = "homesecurity/interior/status/memory";
 const char SENSOR_STATUS[]      PROGMEM = "homesecurity/interior/status/sensor";
 
-PGM_P const STATUS_TOPICS[]     PROGMEM = { MQTT_STATUS,         // idx = 0
+PGM_P const STATUS_TOPICS[]     PROGMEM = { MQTT_STATUS,        // idx = 0
+                                            INTERVAL_STATUS,      // idx = 1
                                             IP_ADDR_STATUS,      // idx = 1
                                             UPTIME_STATUS,       // idx = 2
                                             MEMORY_STATUS,       // idx = 3
@@ -73,47 +74,47 @@ PGM_P const STATUS_TOPICS[]     PROGMEM = { MQTT_STATUS,         // idx = 0
 // STATUS_TOPICS indices, must match table above
 typedef enum {
   MQTT_STATUS_IDX            = 0,
-  IP_ADDR_STATUS_IDX         = 1,
-  UPTIME_STATUS_IDX          = 2,
-  MEMORY_STATUS_IDX          = 3,
-  SENSOR_STATUS_IDX          = 4,
+  INTERVAL_STATUS_IDX        = 1,
+  IP_ADDR_STATUS_IDX         = 2,
+  UPTIME_STATUS_IDX          = 3,
+  MEMORY_STATUS_IDX          = 4,
+  SENSOR_STATUS_IDX          = 5,
 } status_topics;
 
-void publish_connected()
-{
-  payloadBuffer[0] = '\0';
-  strcpy_P(payloadBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[MQTT_PAYLOAD_CONNECTED_IDX])));
+void publish_connected() {
   topicBuffer[0] = '\0';
   strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[MQTT_STATUS_IDX])));
+  payloadBuffer[0] = '\0';
+  strcpy_P(payloadBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[MQTT_PAYLOAD_CONNECTED_IDX])));
   mqttClient.publish(topicBuffer, payloadBuffer);
 }
 
-void publish_ip_address()
-{
+void publish_status_interval() {
+  topicBuffer[0] = '\0';
+  strcpy_P(topicBuffer,
+           (char *)pgm_read_word(&(STATUS_TOPICS[INTERVAL_STATUS_IDX])));
   payloadBuffer[0] = '\0';
-#if USE_WIFLY
-  strcpy(payloadBuffer, WiFly.ip());
-#elif USE_ETHERNET
-  sprintf(payloadBuffer, "%d.%d.%d.%d", Ethernet.localIP()[0], Ethernet.localIP()[1], Ethernet.localIP()[2], Ethernet.localIP()[3]);
-#else
-  // publish an error
-  strcpy_P(payloadBuffer, (char*)pgm_read_word(&(MQTT_PAYLOADS[MQTT_PAYLOAD_ERROR_IDX])));
-#endif
+  mqttClient.publish(topicBuffer,
+                     ltoa(STATUS_UPDATE_INTERVAL, payloadBuffer, 10));
+}
+
+void publish_ip_address() {
   topicBuffer[0] = '\0';
   strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[IP_ADDR_STATUS_IDX])));
+  payloadBuffer[0] = '\0';
+  IPAddress ip = Ethernet.localIP();
+  sprintf(payloadBuffer, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   mqttClient.publish(topicBuffer, payloadBuffer);
 }
 
-void publish_uptime()
-{
-  payloadBuffer[0] = '\0';
+void publish_uptime() {
   topicBuffer[0] = '\0';
   strcpy_P(topicBuffer, (char*)pgm_read_word(&(STATUS_TOPICS[UPTIME_STATUS_IDX])));
+  payloadBuffer[0] = '\0';
   mqttClient.publish(topicBuffer, ltoa(millis(), payloadBuffer, 10));
 }
 
-void publish_sensor_state(char ref, byte state)
-{
+void publish_sensor_state(char ref, byte state) {
   // create message in format "ref,state"
   payloadBuffer[0] = '\0';
 //  strcpy(messBuffer, ref);
@@ -125,15 +126,22 @@ void publish_sensor_state(char ref, byte state)
   mqttClient.publish(topicBuffer, payloadBuffer);
 }
 
-byte mqtt_defaults()
-{
+void publish_configuration() {
+  publish_status_interval();
+  publish_ip_address();
+}
+
+void publish_status() {
+  publish_uptime();
+}
+
+byte mqtt_defaults() {
   strcpy(mqttClientId, "security");
   mqttPort = 1883;
   return 1;
 }
 
-byte mqtt_init()
-{
+byte mqtt_init() {
   mqtt_defaults();
   return 1;
 }

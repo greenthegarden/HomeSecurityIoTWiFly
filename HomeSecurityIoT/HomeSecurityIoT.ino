@@ -70,11 +70,19 @@ void loop()
     mqttClient.loop();
   }
 
+  if (now - statusPreviousMillis >= STATUS_UPDATE_INTERVAL) {
+    if (mqttClientConnected) {
+      statusPreviousMillis = now;
+      publish_status();
+    }
+  }
+
   // only take sensor measurements when connected to mqtt broker
-  if (mqttClientConnected) {
-    if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
+  if (now - sensorReadPreviousMillis >= SENSOR_READ_INTERVAL) {
+    if (mqttClientConnected) {
       sensorReadPreviousMillis = now;
       check_sensors();
     }
   }
+
 }
